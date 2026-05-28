@@ -6,7 +6,7 @@ The `frontend-maven-plugin` downloads Node.js 18.8.0 and Yarn 1.22.17 automatica
 
 ## Prerequisites
 
-- Java 8 (Temurin recommended)
+- Java 17 (Temurin recommended)
 - Maven or the included `./mvnw` wrapper
 - The `wotos-react-ui` source must be present alongside this repo (the plugin expects it at `./wotos-react-ui/`)
 

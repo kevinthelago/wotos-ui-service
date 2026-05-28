@@ -1,5 +1,8 @@
-
 spring:
+  config:
+    # Spring Cloud 2023.x loads remote config via spring.config.import instead of
+    # bootstrap.yml. "optional:" keeps startup working when no config server is up.
+    import: "optional:configserver:"
   thymeleaf:
     enabled: true
     prefix: classpath:/static/
