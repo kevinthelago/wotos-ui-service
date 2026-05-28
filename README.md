@@ -32,3 +32,17 @@ The compiled React app is available at `http://localhost:8080` once the service 
 ## Development
 
 For active UI development, run `wotos-react-ui` standalone (`npm start`) rather than rebuilding through this service on every change.
+
+## Docker
+
+The repo ships a multi-stage `Dockerfile` that builds the backend with the JDK and ships the executable jar on a slim JRE. The image **does not include the compiled React app** — `wotos-react-ui` lives in a sibling repo and is composed in at the project-root level (see Phase 5/8 roadmap items).
+
+```bash
+# Build
+docker build -t wotos-ui-service:dev .
+
+# Run
+docker run --rm -p 8080:8080 wotos-ui-service:dev
+```
+
+The service listens on `8080`. Without a running Spring Cloud Config server or Eureka registry, the optional config-import + Eureka client degrade gracefully — Spring Boot reports `Started WotosUiServiceApplication` and the process keeps running.
