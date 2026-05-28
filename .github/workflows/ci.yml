@@ -35,3 +35,48 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
           if-no-files-found: warn
+
+  docker:
+    name: Docker image smoke test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: wotos-ui-service:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test — container starts cleanly
+        # Run the container detached, wait for Spring Boot's "Started" log line,
+        # then assert the process is still alive. Times out after ~60s.
+        run: |
+          docker run -d --name wotos-ui-service-ci -p 8080:8080 wotos-ui-service:ci
+          for i in $(seq 1 60); do
+            if docker logs wotos-ui-service-ci 2>&1 | grep -q "Started WotosUiServiceApplication"; then
+              echo "Container started in ${i}s"
+              break
+            fi
+            if ! docker ps --filter "name=wotos-ui-service-ci" --filter "status=running" | grep -q wotos-ui-service-ci; then
+              echo "Container exited before Spring Boot reported started"
+              docker logs wotos-ui-service-ci
+              exit 1
+            fi
+            sleep 1
+          done
+          if ! docker logs wotos-ui-service-ci 2>&1 | grep -q "Started WotosUiServiceApplication"; then
+            echo "Timed out waiting for Spring Boot to start"
+            docker logs wotos-ui-service-ci
+            exit 1
+          fi
+          docker stop wotos-ui-service-ci
