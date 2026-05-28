@@ -1,0 +1,9 @@
+# Force LF on shell scripts and the Maven wrapper so they run on Linux/macOS
+# regardless of the cloning OS. The mvnw script in particular breaks inside
+# Docker on Windows checkouts without this.
+*.sh        text eol=lf
+mvnw        text eol=lf
+mvnw.cmd    text eol=crlf
+
+# Default: let Git decide, but normalise to LF in the index
+*           text=auto
